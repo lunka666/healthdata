@@ -1,0 +1,71 @@
+{% extends 'records/base.html' %}
+{% block title %}Все данные{% endblock %}
+{% block content %}
+    <h1 class="mb-4">Все сохранённые данные</h1>
+
+    {% if no_files %}
+        <div class="alert alert-info">На сервере пока нет ни одного файла с данными.</div>
+    {% else %}
+        {% if broken_files %}
+            <div class="alert alert-warning">
+                Не удалось прочитать некоторые файлы:
+                <ul class="mb-0">
+                    {% for filename, error in broken_files %}
+                        <li>{{ filename }}: {{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        {% if records %}
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered align-middle">
+                    <thead>
+                        <tr>
+                            <th>Файл</th>
+                            <th>Формат</th>
+                            <th>ФИО</th>
+                            <th>Дата рожд.</th>
+                            <th>Группа крови</th>
+                            <th>Рост, см</th>
+                            <th>Вес, кг</th>
+                            <th>АД</th>
+                            <th>Пульс</th>
+                            <th>Темп., °C</th>
+                            <th>Дата измерения</th>
+                            <th>Симптомы</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in records %}
+                            <tr>
+                                <td class="text-muted small">{{ r.source_file }}</td>
+                                <td><span class="badge bg-secondary">{{ r.file_format }}</span></td>
+                                <td>{{ r.patient_full_name }}</td>
+                                <td>{{ r.birth_date }}</td>
+                                <td>{{ r.blood_type }}</td>
+                                <td>{{ r.height_cm }}</td>
+                                <td>{{ r.weight_kg }}</td>
+                                <td>{{ r.systolic_bp }}/{{ r.diastolic_bp }}</td>
+                                <td>{{ r.heart_rate }}</td>
+                                <td>{{ r.temperature_c }}</td>
+                                <td>{{ r.measurement_date }}</td>
+                                <td>
+                                    {% if r.symptoms %}
+                                        <ul class="mb-0 ps-3">
+                                        {% for s in r.symptoms %}
+                                            <li>{{ s }}</li>
+                                        {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        &mdash;
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    {% endif %}
+{% endblock %}

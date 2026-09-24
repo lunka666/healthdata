@@ -1,0 +1,17 @@
+{% extends 'records/base.html' %}
+{% block title %}Загрузить файл{% endblock %}
+{% block content %}
+    <h1 class="mb-4">Загрузить файл с данными</h1>
+    <p class="text-muted">Допустимы файлы .json и .xml размером до 2 МБ. Файл будет проверен на структуру после загрузки — при ошибке он удаляется с сервера.</p>
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.data_file.label_tag }}
+            {{ form.data_file }}
+            {% if form.data_file.errors %}
+                <div class="text-danger small">{{ form.data_file.errors|striptags }}</div>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary">Загрузить</button>
+    </form>
+{% endblock %}

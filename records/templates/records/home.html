@@ -1,0 +1,25 @@
+{% extends 'records/base.html' %}
+{% block title %}Главная{% endblock %}
+{% block content %}
+    <h1 class="mb-4">Учёт показателей здоровья</h1>
+    <p class="text-muted">
+        Приложение сохраняет введённые показатели в файлы JSON/XML,
+        принимает готовые файлы с проверкой на сервере и показывает
+        содержимое всех сохранённых файлов на одной странице.
+    </p>
+    <div class="row g-3 mt-2">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Сейчас на сервере</h5>
+                    <p class="card-text">JSON-файлов: <b>{{ json_count }}</b><br>XML-файлов: <b>{{ xml_count }}</b></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-4 d-flex gap-2">
+        <a href="{% url 'records:create' %}" class="btn btn-primary">Ввести данные вручную</a>
+        <a href="{% url 'records:upload' %}" class="btn btn-outline-primary">Загрузить файл</a>
+        <a href="{% url 'records:view_data' %}" class="btn btn-outline-secondary">Посмотреть все данные</a>
+    </div>
+{% endblock %}
