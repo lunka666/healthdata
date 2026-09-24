@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'records',
 ]
 
 MIDDLEWARE = [
@@ -115,6 +116,21 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# ---------------------------------------------------------------------------
+# Папки для хранения файлов с показателями здоровья.
+# Они находятся ВНЕ зоны, отдаваемой сервером напрямую (в отличие от
+# MEDIA_ROOT) — доступ к содержимому только через view-функции, которые
+# сами читают и валидируют файлы.
+DATA_STORAGE_DIR = BASE_DIR / 'data_storage'
+DATA_JSON_DIR = DATA_STORAGE_DIR / 'json'
+DATA_XML_DIR = DATA_STORAGE_DIR / 'xml'
+
+DATA_JSON_DIR.mkdir(parents=True, exist_ok=True)
+DATA_XML_DIR.mkdir(parents=True, exist_ok=True)
+
+# Ограничение размера загружаемого файла — 2 МБ
+MAX_UPLOAD_SIZE = 2 * 1024 * 1024
 
 
 # Email
