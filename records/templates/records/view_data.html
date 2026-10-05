@@ -23,7 +23,6 @@
                     <thead>
                         <tr>
                             <th>Файл</th>
-                            <th>Формат</th>
                             <th>ФИО</th>
                             <th>Дата рожд.</th>
                             <th>Группа крови</th>
@@ -40,7 +39,6 @@
                         {% for r in records %}
                             <tr>
                                 <td class="text-muted small">{{ r.source_file }}</td>
-                                <td><span class="badge bg-secondary">{{ r.file_format }}</span></td>
                                 <td>{{ r.patient_full_name }}</td>
                                 <td>{{ r.birth_date }}</td>
                                 <td>{{ r.blood_type }}</td>

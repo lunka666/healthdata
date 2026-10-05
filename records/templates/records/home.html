@@ -3,7 +3,7 @@
 {% block content %}
     <h1 class="mb-4">Учёт показателей здоровья</h1>
     <p class="text-muted">
-        Приложение сохраняет введённые показатели в файлы JSON/XML,
+        Приложение сохраняет введённые показатели в файлы JSON,
         принимает готовые файлы с проверкой на сервере и показывает
         содержимое всех сохранённых файлов на одной странице.
     </p>
@@ -12,7 +12,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Сейчас на сервере</h5>
-                    <p class="card-text">JSON-файлов: <b>{{ json_count }}</b><br>XML-файлов: <b>{{ xml_count }}</b></p>
+                    <p class="card-text">JSON-файлов: <b>{{ json_count }}</b></p>
                 </div>
             </div>
         </div>

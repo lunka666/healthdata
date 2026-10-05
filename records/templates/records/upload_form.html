@@ -2,7 +2,7 @@
 {% block title %}Загрузить файл{% endblock %}
 {% block content %}
     <h1 class="mb-4">Загрузить файл с данными</h1>
-    <p class="text-muted">Допустимы файлы .json и .xml размером до 2 МБ. Файл будет проверен на структуру после загрузки — при ошибке он удаляется с сервера.</p>
+    <p class="text-muted">Допустимы файлы .json размером до 2 МБ. Файл будет проверен на структуру после загрузки — при ошибке он удаляется с сервера.</p>
     <form method="post" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
         <div class="mb-3">

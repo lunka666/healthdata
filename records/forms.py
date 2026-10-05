@@ -10,7 +10,6 @@ from .validators import NAME_RE, ALLOWED_BLOOD_TYPES
 class HealthRecordForm(forms.Form):
     """Форма ручного ввода показателей здоровья пациента."""
 
-    FORMAT_CHOICES = [('json', 'JSON'), ('xml', 'XML')]
     BLOOD_TYPE_CHOICES = [(bt, bt) for bt in sorted(ALLOWED_BLOOD_TYPES)]
 
     patient_full_name = forms.CharField(
@@ -56,10 +55,6 @@ class HealthRecordForm(forms.Form):
     symptoms = forms.CharField(
         label='Симптомы (каждый с новой строки)', required=False,
         widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-    )
-    file_format = forms.ChoiceField(
-        label='Формат файла для сохранения', choices=FORMAT_CHOICES,
-        widget=forms.RadioSelect,
     )
 
     def clean_patient_full_name(self):
@@ -119,9 +114,9 @@ class HealthRecordForm(forms.Form):
 
 
 class UploadFileForm(forms.Form):
-    """Форма загрузки готового JSON/XML файла на сервер."""
+    """Форма загрузки готового JSON файла на сервер."""
 
-    data_file = forms.FileField(label='Файл с данными (.json или .xml)')
+    data_file = forms.FileField(label='Файл с данными (.json)')
 
     def clean_data_file(self):
         f = self.cleaned_data['data_file']
@@ -130,9 +125,9 @@ class UploadFileForm(forms.Form):
         #    файла для сохранения на диске — только для определения формата.
         _, ext = os.path.splitext(f.name)
         ext = ext.lower()
-        if ext not in ('.json', '.xml'):
+        if ext != '.json':
             raise forms.ValidationError(
-                'Разрешены только файлы с расширением .json или .xml'
+                'Разрешены только файлы с расширением .json'
             )
 
         # 2. Ограничение размера — защита от заливки огромных файлов.

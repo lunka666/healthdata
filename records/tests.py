@@ -9,10 +9,9 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 class HealthRecordFlowTests(TestCase):
     def tearDown(self):
         # Чистим за собой файлы, созданные во время тестов.
-        for directory in (settings.DATA_JSON_DIR, settings.DATA_XML_DIR):
-            for name in os.listdir(directory):
-                if name != '.gitkeep':
-                    os.remove(directory / name)
+        for name in os.listdir(settings.DATA_JSON_DIR):
+            if name != '.gitkeep':
+                os.remove(settings.DATA_JSON_DIR / name)
 
     VALID_PAYLOAD = {
         'patient_full_name': 'Мария Петрова',
@@ -26,7 +25,6 @@ class HealthRecordFlowTests(TestCase):
         'temperature_c': 36.6,
         'measurement_date': '2024-01-10',
         'symptoms': 'Лёгкая усталость',
-        'file_format': 'json',
     }
 
     def test_view_data_shows_message_when_no_files(self):

@@ -9,7 +9,6 @@ from .validators import validate_record_dict
 from .utils import (
     safe_filename,
     records_to_json_bytes,
-    records_to_xml_bytes,
     parse_data_bytes,
     DataFormatError,
 )
@@ -17,10 +16,8 @@ from .utils import (
 
 def home(request):
     json_count = len([f for f in os.listdir(settings.DATA_JSON_DIR) if f.endswith('.json')])
-    xml_count = len([f for f in os.listdir(settings.DATA_XML_DIR) if f.endswith('.xml')])
     return render(request, 'records/home.html', {
         'json_count': json_count,
-        'xml_count': xml_count,
     })
 
 
@@ -39,17 +36,10 @@ def create_record(request):
                     messages.error(request, err)
                 return render(request, 'records/create_form.html', {'form': form})
 
-            file_format = form.cleaned_data['file_format']
-            if file_format == 'json':
-                filename = safe_filename('.json')
-                content = records_to_json_bytes([record])
-                target_dir = settings.DATA_JSON_DIR
-            else:
-                filename = safe_filename('.xml')
-                content = records_to_xml_bytes([record])
-                target_dir = settings.DATA_XML_DIR
+            filename = safe_filename('.json')
+            content = records_to_json_bytes([record])
 
-            with open(target_dir / filename, 'wb') as fh:
+            with open(settings.DATA_JSON_DIR / filename, 'wb') as fh:
                 fh.write(content)
 
             messages.success(request, f'Данные сохранены в файл "{filename}"')
@@ -70,13 +60,13 @@ def upload_file(request):
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             uploaded = form.cleaned_data['data_file']
-            _, ext = os.path.splitext(uploaded.name)
-            ext = ext.lower()
 
             # Имя на диске генерируем сами — имени пользователя не доверяем.
-            filename = safe_filename(ext)
-            target_dir = settings.DATA_JSON_DIR if ext == '.json' else settings.DATA_XML_DIR
-            file_path = target_dir / filename
+            # Расширение здесь всегда '.json' — это уже проверено в
+            # UploadFileForm.clean_data_file(), но для читаемости кода
+            # явно укажем формат при генерации имени.
+            filename = safe_filename('.json')
+            file_path = settings.DATA_JSON_DIR / filename
 
             # Сохраняем файл на диск потоково (чанками), чтобы не грузить
             # в память сразу целиком, если файл большой.
@@ -88,7 +78,7 @@ def upload_file(request):
             try:
                 with open(file_path, 'rb') as fh:
                     raw = fh.read()
-                records = parse_data_bytes(raw, ext)
+                records = parse_data_bytes(raw, '.json')
 
                 all_errors = []
                 for idx, record in enumerate(records, start=1):
@@ -128,36 +118,35 @@ def view_data(request):
     records = []
     broken_files = []
 
-    for directory, ext in ((settings.DATA_JSON_DIR, '.json'), (settings.DATA_XML_DIR, '.xml')):
-        for filename in sorted(os.listdir(directory)):
-            file_path = directory / filename
-            if not file_path.is_file() or not filename.lower().endswith(ext):
-                continue  # пропускаем служебные файлы вроде .gitkeep
-            try:
-                with open(file_path, 'rb') as fh:
-                    raw = fh.read()
-                items = parse_data_bytes(raw, ext)
-                for item in items:
-                    records.append({
-                        'source_file': filename,
-                        'file_format': ext.lstrip('.').upper(),
-                        'patient_full_name': item.get('patient_full_name', ''),
-                        'birth_date': item.get('birth_date', ''),
-                        'blood_type': item.get('blood_type', ''),
-                        'height_cm': item.get('height_cm', ''),
-                        'weight_kg': item.get('weight_kg', ''),
-                        'systolic_bp': item.get('systolic_bp', ''),
-                        'diastolic_bp': item.get('diastolic_bp', ''),
-                        'heart_rate': item.get('heart_rate', ''),
-                        'temperature_c': item.get('temperature_c', ''),
-                        'measurement_date': item.get('measurement_date', ''),
-                        'symptoms': item.get('symptoms', []),
-                    })
-            except DataFormatError as exc:
-                # Файл повреждён (например, кто-то отредактировал его
-                # руками на диске) — не роняем страницу, а просто
-                # показываем предупреждение и пропускаем этот файл.
-                broken_files.append((filename, str(exc)))
+    directory = settings.DATA_JSON_DIR
+    for filename in sorted(os.listdir(directory)):
+        file_path = directory / filename
+        if not file_path.is_file() or not filename.lower().endswith('.json'):
+            continue  # пропускаем служебные файлы вроде .gitkeep
+        try:
+            with open(file_path, 'rb') as fh:
+                raw = fh.read()
+            items = parse_data_bytes(raw, '.json')
+            for item in items:
+                records.append({
+                    'source_file': filename,
+                    'patient_full_name': item.get('patient_full_name', ''),
+                    'birth_date': item.get('birth_date', ''),
+                    'blood_type': item.get('blood_type', ''),
+                    'height_cm': item.get('height_cm', ''),
+                    'weight_kg': item.get('weight_kg', ''),
+                    'systolic_bp': item.get('systolic_bp', ''),
+                    'diastolic_bp': item.get('diastolic_bp', ''),
+                    'heart_rate': item.get('heart_rate', ''),
+                    'temperature_c': item.get('temperature_c', ''),
+                    'measurement_date': item.get('measurement_date', ''),
+                    'symptoms': item.get('symptoms', []),
+                })
+        except DataFormatError as exc:
+            # Файл повреждён (например, кто-то отредактировал его
+            # руками на диске) — не роняем страницу, а просто
+            # показываем предупреждение и пропускаем этот файл.
+            broken_files.append((filename, str(exc)))
 
     no_files = not records and not broken_files
 

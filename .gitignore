@@ -4,6 +4,4 @@ __pycache__/
 db.sqlite3
 .DS_Store
 data_storage/json/*.json
-data_storage/xml/*.xml
 !data_storage/json/.gitkeep
-!data_storage/xml/.gitkeep
